@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>泰拉食堂 - 干员饭盒管理中心</title>
+    <style>
+        /* ====== 样式与原来完全一致，仅删掉 Base64 数据区 ====== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+
+        html {
+            height: 100vh;
+            height: -webkit-fill-available;
+        }
+        .management-view {
+            display: block;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Web端大屏幕优化 */
+        @media (min-width: 1025px) {
+            .container {
+                max-width: 1400px;
+                padding: 30px 40px;
+            }
+            
+            .filter-section {
+                padding: 30px;
+                border-radius: 20px;
+            }
+            
+            .models-grid {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 25px;
+            }
+            
+            .model-card {
+                padding: 25px;
+                border-radius: 15px;
+            }
+            
+            .model-name {
+                font-size: 1.4rem;
+            }
+            
+            .header h1 {
+                font-size: 3rem;
+            }
+            
+            .header p {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* 超宽屏优化 */
+        @media (min-width: 1600px) {
+            .container {
+                max-width: 1600px;
+                padding: 40px 60px;
+            }
+            
+            .models-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 30px;
+            }
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .filter-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .filter-category {
+            margin-bottom: 20px;
+        }
+        .filter-category h3 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            color: #2c3e50;
+        }
+        .category-title {
+            display: flex;
+            align-items: center;
+        }
+        .category-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .category-btn {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .select-category-btn {
+            background: #27ae60;
+            color: white;
+        }
+        .select-category-btn:hover {
+            background: #219a52;
+            transform: scale(1.05);
+        }
+        .clear-category-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        .clear-category-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+        .filter-category .emoji {
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tag {
+            padding: 8px 16px;
+            background: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            user-select: none;
+        }
+        .tag:hover {
+            background: #d5dbdb;
+            transform: translateY(-2px);
+        }
+        .tag.selected {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        .filter-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .select-all-btn {
+            padding: 10px 20px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .select-all-btn:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+        .clear-filters {
+            margin-top: 0;
+            padding: 10px 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .clear-filters:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        .models-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .models-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .models-header h2 {
+            color: #2c3e50;
+            margin-right: 15px;
+        }
+        .model-count {
+            background: #3498db;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .model-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .model-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #3498db;
+        }
+        .model-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .model-name .icon {
+            margin-right: 8px;
+            font-size: 1.5rem;
+        }
+        .model-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .model-tag {
+            padding: 3px 8px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            border: 1px solid #bbdefb;
+        }
+        .no-models {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        /* ====== 3D 展示页 ====== */
+        .model-view {
+            display: none;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #5a67d8 0%, #7928ca 50%, #805ad5 100%);
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+        }
+        .model-view::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('w_background.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-attachment: fixed;
+            opacity: 0.5;
+            z-index: 0;
+            pointer-events: none;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        #model-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        #model-container canvas {
+            position: relative;
+            z-index: 1;
+        }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            z-index: 100;
+        }
+        #loading .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+        #back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        #back-btn:hover {
+            background: rgba(0, 0, 0, 0.7);
+            transform: translateY(-2px);
+        }
+        #error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff6b6b;
+            font-size: 16px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            z-index: 100;
+        }
+        /* iPhone 15 Pro 适配 (393x852px) */
+        @media (max-width: 393px) and (max-height: 852px) {
+            .model-view::before {
+                background-size: 85%;
+                background-position: center 40%;
+            }
+            
+            #back-btn {
+                top: 50px;
+                left: 20px;
+                padding: 12px 20px;
+                font-size: 1rem;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+            
+            #instructions {
+                bottom: 30px;
+                left: 20px;
+                right: 20px;
+                font-size: 14px;
+                padding: 12px;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-radius: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 8px;
+            }
+            .header {
+                margin-bottom: 20px;
+                padding: 0 10px;
+            }
+            .header h1 {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+            }
+            .header p {
+                font-size: 1rem;
+            }
+            .filter-section {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            .filter-category {
+                margin-bottom: 15px;
+            }
+            .filter-category h3 {
+                font-size: 1.1rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .category-actions {
+                align-self: flex-end;
+                gap: 5px;
+            }
+            .category-btn {
+                padding: 3px 10px;
+                font-size: 0.75rem;
+            }
+            .filter-tags {
+                justify-content: flex-start;
+                gap: 6px;
+            }
+            .tag {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+                border-radius: 15px;
+            }
+            .models-section {
+                padding: 15px;
+            }
+            .models-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .model-card {
+                padding: 15px;
+            }
+            .model-name {
+                font-size: 1.2rem;
+            }
+            .model-name .icon {
+                font-size: 1.3rem;
+            }
+            .model-tags {
+                gap: 4px;
+            }
+            .model-tag {
+                padding: 2px 6px;
+                font-size: 0.75rem;
+            }
+            .filter-actions {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+            .select-all-btn, .clear-filters {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                width: 100%;
+                max-width: 200px;
+            }
+            
+            /* 3D视图移动端适配 */
+            .model-view::before {
+                background-size: 75%;
+                background-position: center;
+            }
+            
+            #model-container {
+                width: 100vw;
+                height: 100vh;
+            }
+            
+            #back-btn {
+                top: 20px;
+                left: 20px;
+                padding: 10px 18px;
+                font-size: 0.95rem;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                border-radius: 8px;
+            }
+            
+            #instructions {
+                bottom: 25px;
+                left: 15px;
+                right: 15px;
+                font-size: 13px;
+                padding: 12px;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                border-radius: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .header p {
+                font-size: 0.9rem;
+            }
+            .filter-section {
+                padding: 12px;
+                border-radius: 12px;
+                margin-bottom: 15px;
+            }
+            .filter-category h3 {
+                font-size: 1rem;
+            }
+            .tag {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+                min-height: 36px;
+                display: flex;
+                align-items: center;
+                margin-bottom: 4px;
+            }
+            .model-card {
+                padding: 15px;
+                border-radius: 10px;
+                margin-bottom: 12px;
+            }
+            .model-name {
+                font-size: 1.2rem;
+                margin-bottom: 8px;
+            }
+            .model-tags {
+                margin-top: 8px;
+            }
+            .model-tag {
+                padding: 4px 8px;
+                font-size: 0.8rem;
+            }
+            .container {
+                padding: 12px 8px;
+            }
+            .header {
+                margin-bottom: 15px;
+            }
+        }
+
+        /* 背景适配系统 - 智能响应式 */
+        .model-view {
+            background: linear-gradient(135deg, #5a67d8 0%, #7928ca 50%, #805ad5 100%);
+            background-attachment: fixed;
+        }
+
+        /* 默认web端优化 */
+        .model-view::before {
+            background-size: 45%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* 平板端优化 */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .model-view::before {
+                background-size: 50%;
+                background-position: center;
+            }
+        }
+
+        /* 小屏手机优化 */
+        @media (max-width: 375px) {
+            .model-view::before {
+                background-size: 80%;
+                background-position: center 35%;
+            }
+        }
+
+        /* 标准手机优化 */
+        @media (min-width: 376px) and (max-width: 430px) {
+            .model-view::before {
+                background-size: 75%;
+                background-position: center 40%;
+            }
+        }
+
+        /* 大屏手机优化 */
+        @media (min-width: 431px) and (max-width: 767px) {
+            .model-view::before {
+                background-size: 65%;
+                background-position: center 42%;
+            }
+        }
+
+        /* 电脑端大屏幕优化 - 保持原有体验 */
+        @media (min-width: 1025px) {
+            .model-view::before {
+                background-size: 45%;
+                background-position: center;
+            }
+            
+            /* 电脑端保持原有按钮样式 */
+            #back-btn {
+                top: 20px;
+                left: 20px;
+                padding: 10px 20px;
+                font-size: 1rem;
+                background: rgba(0, 0, 0, 0.5);
+                border-radius: 8px;
+                backdrop-filter: none;
+            }
+            
+            #instructions {
+                bottom: 20px;
+                left: 20px;
+                font-size: 14px;
+                padding: 10px;
+                background: rgba(0, 0, 0, 0.5);
+                border-radius: 5px;
+                backdrop-filter: none;
+            }
+        }
+
+        /* 防止iOS Safari的弹性滚动 */
+        body {
+            -webkit-overflow-scrolling: touch;
+            overflow-scrolling: touch;
+            overscroll-behavior: none;
+        }
+
+        /* 管理界面滚动优化 */
+        .management-view {
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 防止内容溢出 */
+        .container {
+            max-width: 100vw;
+            box-sizing: border-box;
+        }
+
+        /* 优化触摸区域 */
+        @media (hover: none) and (pointer: coarse) {
+            .tag,
+            .category-btn,
+            .select-all-btn,
+            .clear-filters,
+            .model-card,
+            #back-btn {
+                cursor: pointer;
+                -webkit-tap-highlight-color: rgba(52, 152, 219, 0.3);
+                tap-highlight-color: rgba(52, 152, 219, 0.3);
+            }
+            
+            .tag {
+                min-height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .category-btn,
+            .select-all-btn,
+            .clear-filters,
+            #back-btn {
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* 安全区域适配 */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            
+            #back-btn {
+                top: calc(20px + env(safe-area-inset-top));
+                left: calc(20px + env(safe-area-inset-left));
+            }
+            
+            #instructions {
+                bottom: calc(20px + env(safe-area-inset-bottom));
+                left: calc(15px + env(safe-area-inset-left));
+                right: calc(15px + env(safe-area-inset-right));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ================= 管理界面 ================= -->
+    <div class="management-view" id="management-view">
+        <div class="container">
+            <div class="header">
+                <h1>🍽️ 泰拉食堂</h1>
+                <p>干员饭盒管理中心 - 通过词条筛选查找您需要的干员饭盒</p>
+            </div>
+
+            <div class="filter-section">
+                <!-- 职业 -->
+                <div class="filter-category">
+                    <h3>
+                        <div class="category-title">
+                            <span class="emoji">👥</span>职业
+                        </div>
+                        <div class="category-actions">
+                            <button class="category-btn select-category-btn" onclick="selectCategoryTags('职业')">全选</button>
+                            <button class="category-btn clear-category-btn" onclick="clearCategoryTags('职业')">清除</button>
+                        </div>
+                    </h3>
+                    <div class="filter-tags" data-category="职业">
+                        <div class="tag" data-value="先锋">先锋</div>
+                        <div class="tag" data-value="近卫">近卫</div>
+                        <div class="tag" data-value="重装">重装</div>
+                        <div class="tag" data-value="狙击">狙击</div>
+                        <div class="tag" data-value="术师">术师</div>
+                        <div class="tag" data-value="医疗">医疗</div>
+                        <div class="tag" data-value="辅助">辅助</div>
+                        <div class="tag" data-value="特种">特种</div>
+                    </div>
+                </div>
+
+                <!-- 分支 -->
+                <div class="filter-category">
+                    <h3>
+                        <div class="category-title">
+                            <span class="emoji">🎯</span>分支
+                        </div>
+                        <div class="category-actions">
+                            <button class="category-btn select-category-btn" onclick="selectCategoryTags('分支')">全选</button>
+                            <button class="category-btn clear-category-btn" onclick="clearCategoryTags('分支')">清除</button>
+                        </div>
+                    </h3>
+                    <div class="filter-tags" data-category="分支">
+                        <div class="tag" data-value="尖兵">尖兵</div>
+                        <div class="tag" data-value="冲锋手">冲锋手</div>
+                        <div class="tag" data-value="战术家">战术家</div>
+                        <div class="tag" data-value="教官">教官</div>
+                        <div class="tag" data-value="炮手">炮手</div>
+                        <div class="tag" data-value="神射手">神射手</div>
+                        <div class="tag" data-value="攻城手">攻城手</div>
+                        <div class="tag" data-value="投掷手">投掷手</div>
+                        <div class="tag" data-value="中坚术师">中坚术师</div>
+                        <div class="tag" data-value="扩散术师">扩散术师</div>
+                        <div class="tag" data-value="链术师">链术师</div>
+                        <div class="tag" data-value="秘术师">秘术师</div>
+                    </div>
+                </div>
+
+                <!-- 稀有度 -->
+                <div class="filter-category">
+                    <h3>
+                        <div class="category-title">
+                            <span class="emoji">⭐</span>稀有度
+                        </div>
+                        <div class="category-actions">
+                            <button class="category-btn select-category-btn" onclick="selectCategoryTags('稀有度')">全选</button>
+                            <button class="category-btn clear-category-btn" onclick="clearCategoryTags('稀有度')">清除</button>
+                        </div>
+                    </h3>
+                    <div class="filter-tags" data-category="稀有度">
+                        <div class="tag" data-value="⭐1">⭐1</div>
+                        <div class="tag" data-value="⭐2">⭐2</div>
+                        <div class="tag" data-value="⭐3">⭐3</div>
+                        <div class="tag" data-value="⭐4">⭐4</div>
+                        <div class="tag" data-value="⭐5">⭐5</div>
+                        <div class="tag" data-value="⭐6">⭐6</div>
+                    </div>
+                </div>
+
+                <!-- 位置 -->
+                <div class="filter-category">
+                    <h3>
+                        <div class="category-title">
+                            <span class="emoji">🎯</span>位置
+                        </div>
+                        <div class="category-actions">
+                            <button class="category-btn select-category-btn" onclick="selectCategoryTags('位置')">全选</button>
+                            <button class="category-btn clear-category-btn" onclick="clearCategoryTags('位置')">清除</button>
+                        </div>
+                    </h3>
+                    <div class="filter-tags" data-category="位置">
+                        <div class="tag" data-value="近战位">近战位</div>
+                        <div class="tag" data-value="远程位">远程位</div>
+                    </div>
+                </div>
+
+                <!-- 性别 -->
+                <div class="filter-category">
+                    <h3>
+                        <div class="category-title">
+                            <span class="emoji">👤</span>性别
+                        </div>
+                        <div class="category-actions">
+                            <button class="category-btn select-category-btn" onclick="selectCategoryTags('性别')">全选</button>
+                            <button class="category-btn clear-category-btn" onclick="clearCategoryTags('性别')">清除</button>
+                        </div>
+                    </h3>
+                    <div class="filter-tags" data-category="性别">
+                        <div class="tag" data-value="男性">男性</div>
+                        <div class="tag" data-value="女性">女性</div>
+                    </div>
+                </div>
+
+                <!-- 获取途径 -->
+                <div class="filter-category">
+                    <h3>
+                        <div class="category-title">
+                            <span class="emoji">🎁</span>获取途径
+                        </div>
+                        <div class="category-actions">
+                            <button class="category-btn select-category-btn" onclick="selectCategoryTags('获取途径')">全选</button>
+                            <button class="category-btn clear-category-btn" onclick="clearCategoryTags('获取途径')">清除</button>
+                        </div>
+                    </h3>
+                    <div class="filter-tags" data-category="获取途径">
+                        <div class="tag" data-value="公开招募">公开招募</div>
+                        <div class="tag" data-value="标准寻访">标准寻访</div>
+                        <div class="tag" data-value="限定寻访">限定寻访</div>
+                        <div class="tag" data-value="活动获得">活动获得</div>
+                        <div class="tag" data-value="商店兑换">商店兑换</div>
+                        <div class="tag" data-value="主线关卡">主线关卡</div>
+                    </div>
+                </div>
+
+                <!-- 词缀 -->
+                <div class="filter-category">
+                    <h3>
+                        <div class="category-title">
+                            <span class="emoji">💪</span>词缀
+                        </div>
+                        <div class="category-actions">
+                            <button class="category-btn select-category-btn" onclick="selectCategoryTags('词缀')">全选</button>
+                            <button class="category-btn clear-category-btn" onclick="clearCategoryTags('词缀')">清除</button>
+                        </div>
+                    </h3>
+                    <div class="filter-tags" data-category="词缀">
+                        <div class="tag" data-value="输出">输出</div>
+                        <div class="tag" data-value="生存">生存</div>
+                        <div class="tag" data-value="群攻">群攻</div>
+                        <div class="tag" data-value="控场">控场</div>
+                        <div class="tag" data-value="支援">支援</div>
+                        <div class="tag" data-value="削弱">削弱</div>
+                        <div class="tag" data-value="位移">位移</div>
+                        <div class="tag" data-value="召唤">召唤</div>
+                        <div class="tag" data-value="治疗">治疗</div>
+                        <div class="tag" data-value="防护">防护</div>
+                        <div class="tag" data-value="费用回复">费用回复</div>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button class="select-all-btn" onclick="selectAllFilters()">🔄 全选</button>
+                    <button class="clear-filters" onclick="clearAllFilters()">🗑️ 清除所有筛选</button>
+                </div>
+            </div>
+
+            <div class="models-section">
+                <div class="models-header">
+                    <h2>🍽️ 干员饭盒</h2>
+                    <div class="model-count" id="model-count">1个</div>
+                </div>
+                <div class="models-grid" id="models-grid">
+                    <div class="no-models">
+                        🔍 正在加载模型数据...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 3D 展示页 ================= -->
+    <div class="model-view" id="model-view">
+        <div id="model-container">
+            <button id="back-btn" onclick="goBackToManagement()">← 返回列表</button>
+
+            <div id="loading">
+                <div class="spinner"></div>
+                <div>正在加载3D模型...</div>
+            </div>
+
+            <div id="error">
+                <h3>加载失败</h3>
+                <p id="error-message"></p>
+                <p>请确保模型文件在同一目录下</p>
+            </div>
+
+            <div id="instructions">
+                <div><strong>操作说明：</strong></div>
+                <div>• 鼠标左键拖拽：旋转模型</div>
+                <div>• 鼠标滚轮：缩放模型</div>
+                <div>• 鼠标右键拖拽：移动模型</div>
+                <div class="mobile-only" style="display: none;">• 单指滑动：旋转模型</div>
+                <div class="mobile-only" style="display: none;">• 双指捏合：缩放模型</div>
+                <div class="mobile-only" style="display: none;">• 双指滑动：移动模型</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 脚本 ================= -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        /* ================= 数据 ================= */
+        const modelsData = [
+            {
+                name: "W",
+                icon: "🍽️",
+                tags: ["狙击", "炮手", "⭐6", "远程位", "女性", "限定寻访", "输出", "控场"],
+                modelUrl: "https://1-1377864309.cos.ap-nanjing.myqcloud.com/w.glb"
+            }
+        ];
+
+        /* ================= 筛选逻辑 ================= */
+        let selectedFilters = {};
+        const managementView = document.getElementById('management-view');
+        const modelView = document.getElementById('model-view');
+        const modelsGrid = document.getElementById('models-grid');
+        const modelCount = document.getElementById('model-count');
+
+        function initFilters() {
+            const categories = document.querySelectorAll('.filter-tags');
+            categories.forEach(category => {
+                const categoryName = category.dataset.category;
+                selectedFilters[categoryName] = new Set();
+                const tags = category.querySelectorAll('.tag');
+                tags.forEach(tag => {
+                    tag.addEventListener('click', () => {
+                        const value = tag.dataset.value;
+                        if (tag.classList.contains('selected')) {
+                            tag.classList.remove('selected');
+                            selectedFilters[categoryName].delete(value);
+                        } else {
+                            tag.classList.add('selected');
+                            selectedFilters[categoryName].add(value);
+                        }
+                        renderModels();
+                    });
+                });
+            });
+            renderModels();
+        }
+
+        function selectCategoryTags(categoryName) {
+            const category = document.querySelector(`.filter-tags[data-category="${categoryName}"]`);
+            const tags = category.querySelectorAll('.tag');
+            tags.forEach(tag => {
+                tag.classList.add('selected');
+                selectedFilters[categoryName].add(tag.dataset.value);
+            });
+            renderModels();
+        }
+
+        function clearCategoryTags(categoryName) {
+            const category = document.querySelector(`.filter-tags[data-category="${categoryName}"]`);
+            const tags = category.querySelectorAll('.tag');
+            tags.forEach(tag => {
+                tag.classList.remove('selected');
+                selectedFilters[categoryName].delete(tag.dataset.value);
+            });
+            renderModels();
+        }
+
+        function selectAllFilters() {
+            Object.keys(selectedFilters).forEach(category => selectCategoryTags(category));
+        }
+
+        function clearAllFilters() {
+            Object.keys(selectedFilters).forEach(category => clearCategoryTags(category));
+        }
+
+        function renderModels() {
+            const filteredModels = modelsData.filter(model => {
+                return Object.keys(selectedFilters).every(category => {
+                    const selected = selectedFilters[category];
+                    if (selected.size === 0) return true;
+                    return model.tags.some(tag => selected.has(tag));
+                });
+            });
+
+            modelCount.textContent = `${filteredModels.length}个`;
+
+            if (filteredModels.length === 0) {
+                modelsGrid.innerHTML = '<div class="no-models">🔍 没有找到符合条件的干员</div>';
+                return;
+            }
+
+            modelsGrid.innerHTML = filteredModels.map(model => `
+                <div class="model-card" onclick="showModel('${model.modelUrl}')">
+                    <div class="model-name">
+                        <span class="icon">${model.icon}</span>
+                        ${model.name}
+                    </div>
+                    <div class="model-tags">
+                        ${model.tags.map(tag => `<span class="model-tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /* ================= 3D 展示 ================= */
+        let scene, camera, renderer, controls, currentModel;
+
+        function showModel(url) {
+            managementView.style.display = 'none';
+            modelView.style.display = 'block';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+
+            if (!scene) init3D();
+            loadModel(url);
+        }
+
+        function goBackToManagement() {
+            managementView.style.display = 'block';
+            modelView.style.display = 'none';
+            if (currentModel) {
+                scene.remove(currentModel);
+                currentModel = null;
+            }
+        }
+
+        function init3D() {
+            const container = document.getElementById('model-container');
+
+            scene = new THREE.Scene();
+            scene.background = null;  // 透明背景，让CSS背景显示
+
+            // 优化相机设置以改善模型可见性
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 8); // 调整相机位置以获得更好的正面视角
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setClearColor(0x000000, 0);  // 完全透明背景
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            // 超亮渲染设置
+                renderer.outputEncoding = THREE.sRGBEncoding;
+                renderer.toneMapping = THREE.ReinhardToneMapping;
+                renderer.toneMappingExposure = 3.0;
+                renderer.physicallyCorrectLights = true;
+                renderer.gammaFactor = 2.2;
+            
+            // 设置渲染器透明度，让背景图片可见
+                renderer.setClearColor(0x000000, 0);
+                
+                container.appendChild(renderer.domElement);
+                console.log('渲染器创建完成');
+
+            
+            // 添加光照
+                setup3DLighting();
+                console.log('光照设置完成');
+
+            animate();
+        }
+
+        function setup3DLighting() {
+            // 超强环境光
+            const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+            scene.add(ambientLight);
+
+            // 主光源
+            const directionalLight1 = new THREE.DirectionalLight(0xffffff, 2.5);
+            directionalLight1.position.set(10, 10, 5);
+            directionalLight1.castShadow = true;
+            directionalLight1.shadow.mapSize.width = 2048;
+            directionalLight1.shadow.mapSize.height = 2048;
+            scene.add(directionalLight1);
+
+            // 补充光源
+            const directionalLight2 = new THREE.DirectionalLight(0xffffff, 2.0);
+            directionalLight2.position.set(-10, -5, -5);
+            scene.add(directionalLight2);
+
+            // 前方补光
+            const directionalLight3 = new THREE.DirectionalLight(0xffffff, 1.8);
+            directionalLight3.position.set(0, 0, 10);
+            scene.add(directionalLight3);
+
+            // 顶部光源
+            const directionalLight4 = new THREE.DirectionalLight(0xffffff, 1.5);
+            directionalLight4.position.set(0, 15, 0);
+            scene.add(directionalLight4);
+
+            // 底部光源
+            const directionalLight5 = new THREE.DirectionalLight(0xffffff, 1.2);
+            directionalLight5.position.set(0, -10, 0);
+            scene.add(directionalLight5);
+
+            // 半球光
+            const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x888888, 1.5);
+            scene.add(hemisphereLight);
+        }
+
+        /* =========  0.  替换原来的 loadModel()  ========= */ 
+        function loadModel(url) { 
+            const loader = new THREE.GLTFLoader(); 
+            loader.load( 
+                url, 
+                gltf => { 
+                    document.getElementById('loading').style.display = 'none'; 
+                    if (currentModel) scene.remove(currentModel); 
+
+                    currentModel = gltf.scene; 
+                    scene.add(currentModel); 
+
+
+                    
+                    
+                    // 调整伽马值以增强可见性
+                    gammaPass.uniforms.gamma.value = 1.2;
+
+                    currentModel.traverse(obj => { 
+                        if (!obj.isMesh) return; 
+
+                        /* 阴影必须开，要不没体积感 */ 
+                        obj.castShadow = true; 
+                        obj.receiveShadow = true; 
+                        obj.frustumCulled = false; // 禁用视锥剔除，确保所有细节都被渲染
+
+                        /* 标准化材质：全转成 MeshPhysical，方便统一调参 */ 
+                        let tgt = obj.material; 
+                        if (!tgt.isMeshPhysicalMaterial) { 
+                            tgt = new THREE.MeshPhysicalMaterial().copy(tgt); 
+                            obj.material = tgt; 
+                        } 
+
+                        // 保持原始材质属性，不进行任何优化调整
+                        tgt.emissive.set(0,0,0);
+                        tgt.needsUpdate = true; 
+                    }); 
+
+                    /* 3. 自动居中+缩放 */ 
+                    const box = new THREE.Box3().setFromObject(currentModel); 
+                    const center = box.getCenter(new THREE.Vector3()); 
+                    const size   = box.getSize(new THREE.Vector3()); 
+                    const maxDim = Math.max(size.x, size.y, size.z); 
+                    currentModel.position.sub(center);          // 移到原点 
+                    const scale = 4 / maxDim;                   // 统一缩到 4 米视口 
+                    currentModel.scale.setScalar(scale); 
+
+                    /* 4. 补光：三点布光 + 环境球 + 顶部柔光箱 */ 
+                    rebuildLights(); 
+
+                    /* 5. 轮廓增强：简单的"背光"+FXAA */ 
+                    addOutlinePass(); 
+
+                    controls.target.set(0, 0, 0); 
+                    controls.update(); 
+                }, 
+                xhr => { 
+                    const pct = (xhr.loaded / xhr.total * 100).toFixed(1); 
+                    console.log('Loading:' + pct + '%'); 
+                }, 
+                err => { 
+                    document.getElementById('loading').style.display = 'none'; 
+                    document.getElementById('error').style.display   = 'block'; 
+                    document.getElementById('error-message').textContent = err.message; 
+                } 
+            ); 
+        } 
+
+        
+
+        /* =========  2.  简单轮廓通道（非后期栈版，轻量）  ========= */
+        function addOutlinePass() {
+            /* 思路：复制一份模型，单面渲染+背面放大+半透明蓝色 */
+            const outline = currentModel.clone();
+            outline.traverse(o => {
+                if (o.isMesh) {
+                    o.material = new THREE.MeshBasicMaterial({
+                        color: 0x00aaff, // 调整为更鲜明的蓝色
+                        side: THREE.BackSide,
+                        transparent: true,
+                        opacity: 0.5 // 增加不透明度以增强轮廓可见性
+                    });
+                    o.scale.multiplyScalar(1.05); // 增加缩放比例以使轮廓更明显
+                }
+            });
+            scene.add(outline);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            if (!camera) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        /* 智能设备检测和优化 */
+        function optimizeForDevice() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                            window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // 移动端优化
+                optimizeForTouch();
+                document.body.classList.add('mobile-device');
+            } else {
+                // Web端优化
+                document.body.classList.add('desktop-device');
+                optimizeForDesktop();
+            }
+            
+            return isMobile;
+        }
+
+        /* 优化触摸体验 - 仅移动端 */
+        function optimizeForTouch() {
+            // 防止双击缩放
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function (event) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+
+            // 防止触摸时页面滚动
+            document.addEventListener('touchmove', function (event) {
+                if (event.target.closest('#model-container')) {
+                    event.preventDefault();
+                }
+            }, { passive: false });
+
+            // 优化按钮触摸反馈
+            const buttons = document.querySelectorAll('.tag, .category-btn, .select-all-btn, .clear-filters, .model-card, #back-btn');
+            buttons.forEach(button => {
+                button.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                });
+                button.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+        }
+
+        /* Web端优化 */
+        function optimizeForDesktop() {
+            // Web端鼠标悬停效果
+            const cards = document.querySelectorAll('.model-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        }
+
+        /* ================= 初始化 ================= */
+        initFilters();
+        optimizeForDevice();
+    </script>
+</body>
+</html>
